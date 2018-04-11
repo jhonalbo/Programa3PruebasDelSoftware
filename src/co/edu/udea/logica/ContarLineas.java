@@ -34,7 +34,7 @@ public class ContarLineas {
 						Parte parte = programa.getPartes().get(j);
 						System.out.println("    Parte "+(j+1));
 						System.out.println("    Nombre: "+parte.getNombre());
-						System.out.println("    Cantidad de ítems: "+parte.getItem().size());
+						System.out.println("    Cantidad de items: "+parte.getItems().size());
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -50,13 +50,15 @@ public class ContarLineas {
 		long nPartes = 0;
 		long nItems = 0;
 		try {
+			bf.mark(1000000);
 			while ((linea = bf.readLine())!=null) {
+				System.out.println("Entra primer ciclo");
 				linea = linea.trim();
 				if(linea==null){
 					linea="";
 				}
-				/*Cuenta las lineas totales según una validación realizada 
-				en base al estándar de conteo*/ 
+				/*Cuenta las lineas totales segun una validacion realizada 
+				en base al estandar de conteo*/ 
 				if(validar(linea)){
 					nLineas++;
 				}
@@ -65,7 +67,9 @@ public class ContarLineas {
 					nProgramas++;
 					Programa programa = new Programa();
 					List<Parte> listaPartes = new ArrayList<Parte>();
+					bf.mark(1000000);
 					while ((linea = bf.readLine())!=null) {
+						System.out.println("Entra segundo ciclo");
 						linea = linea.trim();
 						if(linea==null){
 							linea="";
@@ -79,42 +83,50 @@ public class ContarLineas {
 					    	Parte parte = new Parte();
 					    	parte.setNombre(nombreParte);
 					    	List<Item> listaItems = new ArrayList<Item>();
-					    	
+					    	bf.mark(1000000);
 					    	while ((linea = bf.readLine())!=null) {
+					    		System.out.println("Entra tercer ciclo");
+					    		System.out.println("Linea leida: "+linea);
 					    		linea = linea.trim();
 								if(linea==null){
 									linea="";
 								}
 					    		Pattern patternItem = Pattern.compile("(public|static|private|protected) ([a-zA-Z0-9\\s<>()"+Pattern.quote("[]")+"]{1,1000})[{]");
 							    Matcher matchItem = patternItem.matcher(linea);
-							    //Cuenta la cantidad de items o métodos y sus elementos y construye los objetos para el item o método
+							    System.out.println("Matches Clase?\n "+linea+"\n "+patternClass.matcher(linea).matches());
+							    //Cuenta la cantidad de items o metodos y sus elementos y construye los objetos para el item o metodo
 							    if(matchItem.matches()) {
 							    	
 							    	nItems++;
 							    	Item item = new Item();
 							    	item.setNombre(linea);
 							    	listaItems.add(item);
-							    }else if (patternClass.matcher(linea).matches()){//Si lo que sigue no es un item sino otra clase
-							    	System.out.println("Encontró otra clase");
+							    }
+						    	if (patternClass.matcher(linea).matches()){//Si lo que sigue no es un item sino otra clase
+							    	System.out.println("Encontro otra clase");
 							    	//Se pone el reader en la linea anterior para que sea leida de nuevo esta linea
-							    	bf.mark(100000);
+							    	System.out.println("RESETEO\n linea anterior:"+linea);
+							    	
 							    	bf.reset();
+							    	System.out.println("RESETEO\n linea actual:"+bf.readLine()+"siguiente \n"+bf.readLine());
 							    	break;
 							    }	
-							    
+						    	bf.mark(1000000);
 					    	}
-					    	parte.setItem(listaItems);
+					    	parte.setItems(listaItems);
 					    	listaPartes.add(parte);
-					    }else if("/*****/".equals(linea)){//Si lo que sigue no es una clase sino otro programa
+					    }
+					    if("/*****/".equals(linea)){//Si lo que sigue no es una clase sino otro programa
 					    	//Se pone el reader en la linea anterior para que sea leida de nuevo esta linea
-					    	bf.mark(100000);
 					    	bf.reset();
 					    	break;
 					    }
+					    bf.mark(1000000);
 					}
 					programa.setPartes(listaPartes);
 					listaProgramas.add(programa);
 				}
+				bf.mark(1000000);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -129,12 +141,11 @@ public class ContarLineas {
 				linea.startsWith("//")||
 				//importaciones de librerias o clases
 				linea.startsWith("import")||
-				//lineas vacías o con solo espacios
+				//lineas vacï¿½as o con solo espacios
 				"".equals(linea)){
 			return false;
 		}else{
 			return true;
 		}
 	}
-
 }
